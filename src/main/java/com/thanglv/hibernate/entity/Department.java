@@ -1,13 +1,11 @@
 package com.thanglv.hibernate.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
-import lombok.ToString;
-import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Builder
@@ -19,20 +17,24 @@ public class Department implements Serializable {
 
     private String name;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "department") // OneToMany da co san lazy fetching
-    @BatchSize(size = 20)
-    private List<Employee> employees;
+    @OneToMany(mappedBy = "department") // OneToMany da co san lazy fetching
+    private Set<Employee> employees = new HashSet<>();
+
+    @OneToOne
+    @JoinColumn(unique = true)
+    private Location location;
 
     public Department() {
     }
 
-    public Department(Long departmentId, String name, List<Employee> employees) {
+    public Department(Long departmentId, String name, Set<Employee> employees, Location location) {
         this.departmentId = departmentId;
         this.name = name;
         this.employees = employees;
+        this.location = location;
     }
 
-    public Department(String name, List<Employee> employees) {
+    public Department(String name, Set<Employee> employees) {
         this.name = name;
         this.employees = employees;
     }
@@ -53,11 +55,36 @@ public class Department implements Serializable {
         this.name = name;
     }
 
-    public List<Employee> getEmployees() {
+    public Set<Employee> getEmployees() {
         return employees;
     }
 
-    public void setEmployees(List<Employee> employees) {
+    public Department employees(Set<Employee> employees) {
         this.employees = employees;
+        return this;
+    }
+
+    public Department addEmployee(Employee employee) {
+        this.employees.add(employee);
+        employee.setDepartment(this);
+        return this;
+    }
+
+    public Department removeEmployee(Employee employee) {
+        this.employees.remove(employee);
+        employee.setDepartment(null);
+        return this;
+    }
+
+    public void setEmployees(Set<Employee> employees) {
+        this.employees = employees;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 }

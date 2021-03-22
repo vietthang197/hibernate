@@ -11,9 +11,7 @@ import java.util.Optional;
 
 public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
-    @EntityGraph(attributePaths = "employees")
     Optional<Department> findByDepartmentId(Long departmentId);
 
-    @Query("FROM Department d JOIN FETCH d.employees")
     Page<Department> findAll(Pageable pageable);
 }

@@ -1,5 +1,6 @@
 package com.thanglv.hibernate.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 
 import javax.persistence.*;
@@ -11,13 +12,13 @@ public class Employee implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "EMPLOYEE_SEQ")
-    @SequenceGenerator(name = "EMPLOYEE_SEQ", sequenceName = "SEQUENCE_EMPLOYEE", allocationSize = 1000, initialValue = 1)
+    @SequenceGenerator(name = "EMPLOYEE_SEQ", sequenceName = "SEQUENCE_EMPLOYEE", allocationSize = 10000, initialValue = 1)
     private Long employeeId;
 
     private String fullName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id")
+    @ManyToOne
+    @JsonIgnoreProperties(value = "employees", allowSetters = true)
     private Department department;
 
     public Employee() {
@@ -27,6 +28,11 @@ public class Employee implements Serializable {
         this.employeeId = employeeId;
         this.fullName = fullName;
         this.department = department;
+    }
+
+    public Employee department(Department department) {
+        this.department = department;
+        return this;
     }
 
     public Employee(String fullName, Department department) {

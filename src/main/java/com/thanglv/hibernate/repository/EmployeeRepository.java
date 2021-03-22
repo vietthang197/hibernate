@@ -12,11 +12,9 @@ import java.util.Optional;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
-    @EntityGraph(attributePaths = "department")
     Optional<Employee> findByEmployeeId(Long employeeId);
 
-    @EntityGraph(attributePaths = "department")
     List<Employee> findAll();
 
-    Page<Employee> findAllByFullNameAndEmployeeId(Pageable pageable, String fullName, Long employeeId);
+    Page<Employee> findAll(Pageable pageable);
 }
