@@ -4,7 +4,10 @@ import com.thanglv.hibernate.filter.JWTConfigurer;
 import com.thanglv.hibernate.filter.TokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,6 +25,8 @@ import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
+@EnableAspectJAutoProxy
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final TokenProvider tokenProvider;
@@ -43,33 +48,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http
-                .csrf()
-                .disable()
-                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling()
+        http.csrf().disable();
+        http.authorizeRequests()
+                .antMatchers("/authenticate", "/login", "/authenticate").permitAll()
+                .anyRequest().authenticated()
                 .and()
-                .headers()
-                .contentSecurityPolicy("default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:")
+                .formLogin()
+                .loginPage("/login").usernameParameter("username").passwordParameter("password").loginProcessingUrl("/j_spring_security_check")
+                .permitAll()
                 .and()
-                .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
+                .exceptionHandling().accessDeniedHandler((httpServletRequest, httpServletResponse, e) -> {
+                    httpServletResponse.setStatus(HttpStatus.FORBIDDEN.value());
+                })
                 .and()
-                .featurePolicy("geolocation 'none'; midi 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; fullscreen 'self'; payment 'none'")
-                .and()
-                .frameOptions()
-                .deny()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeRequests()
-                .antMatchers("/authenticate").permitAll()
-                .anyRequest()
-                .authenticated()
-                .and()
-                .httpBasic()
-                .and()
-                .apply(securityConfigurerAdapter());
+                .logout()
+                .permitAll();
     }
 
     private JWTConfigurer securityConfigurerAdapter() {

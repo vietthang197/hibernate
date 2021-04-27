@@ -28,6 +28,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -88,7 +89,7 @@ public class MyRestController {
         return employeeService.createEmployee();
     }
 
-    @PostAuthorize("hasAuthority('ROLE_FUCK')")
+    @PreAuthorize("hasAuthority('read:employee')")
     @GetMapping("/employee")
     public Page<Employee> getEmployees(@RequestParam int page, @RequestParam int size, @RequestParam String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
@@ -101,34 +102,6 @@ public class MyRestController {
         Pageable pageable = PageRequest.of(0, 100, Sort.by("departmentId"));
         return departmentRepository.findAll(pageable);
     }
-
-//    @GetMapping("/init-data")
-//    public User initData() {
-//        Operation operation = new Operation("Employee", "read", new Date());
-//        Operation operation1 = new Operation("Employee", "list", new Date());
-//        Operation operation2 = new Operation("Employee", "edit", new Date());
-//        Operation operation3 = new Operation("Employee", "delete", new Date());
-//        operation = operationRepository.save(operation);
-//        operation1 = operationRepository.save(operation1);
-//        operation2 = operationRepository.save(operation2);
-//        operation3 = operationRepository.save(operation3);
-//
-//        Set<Operation> operations = new HashSet<>();
-//        operations.add(operation);
-//        operations.add(operation1);
-//        operations.add(operation2);
-//        operations.add(operation3);
-//        Authority authority = new Authority("ADMIN");
-//        authority.setOperations(operations);
-//        authorityRepository.save(authority);
-//
-//        User user = new User();
-//        user.setUsername("admin");
-//        user.setPassword(passwordEncoder.encode("admin"));
-//        user.getAuthorities().add(authority);
-//        userRepository.save(user);
-//        return user;
-//    }
 
     @PostMapping("/api-group")
     public ApiGroup createApiGroup(@RequestBody @Valid ApiGroup apiGroup) {

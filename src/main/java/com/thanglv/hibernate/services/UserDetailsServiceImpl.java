@@ -41,6 +41,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Transactional
     public UserDetails loadUserByUsername(final String username) {
         Optional<User> userOptional = userRepository.findByUsername(username);
+        System.out.println("Chay vao day");
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             Set<GrantedAuthority> authorities = new HashSet<>();
