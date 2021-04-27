@@ -16,4 +16,9 @@ public class MyController {
     public String loginPage() {
         return "login";
     }
+
+    @GetMapping("/403")
+    public String unauth() {
+        return "403";
+    }
 }
