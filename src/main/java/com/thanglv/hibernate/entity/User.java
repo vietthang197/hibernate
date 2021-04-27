@@ -55,4 +55,12 @@ public class User implements Serializable {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public Set<Authority> getAuthorities() {
+        return authorities;
+    }
+
+    public void setAuthorities(Set<Authority> authorities) {
+        this.authorities = authorities;
+    }
 }
